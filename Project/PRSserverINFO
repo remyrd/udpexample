@@ -1,0 +1,5 @@
+./clientx ip_server port_server file_name
+ip_server not 127.0.0.1
+port_server 4 digits
+file_name "cpoy file"
+
