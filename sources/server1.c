@@ -79,8 +79,8 @@ int main (int argc, char* argv[]){
 	char imagebuff[506];
 	char databuff[500];
 	char seqbuff[7];
-
-
+	
+	
 
 	/*******************************************************************************************
 	Test
@@ -154,110 +154,98 @@ int main (int argc, char* argv[]){
 		steps=filesize/500 + 1;
 		remaining=filesize%500;
 		int im=1;
-		int p_number=1;
-		int p_number_transmited=0;
-		int window=1;
 	/********************************
 	 * TRANSMISSION STARTS
 	 * *****************************/
-
+	 
 		i=1;
-		while(i<=steps){
-            if(i+window<steps){
-            while((p_number<=steps)&&(p_number<=i+window)){/// fast retransmit
-                if (p_number == steps) {
-                    im=fread(databuff,remaining,1,image);
-                    sentsize= remaining+6;
-
-                } else {
-                    im=fread(databuff,500,1,image);
-                    sentsize= 506;
-                }
-        /*******************************
-         * sequence buffer generation
-         * ****************************/
-                //generate seqbuff
-                sprintf(seqbuff,"%d",p_number);
-                if(p_number<10){
-                    k=1;
-                }else if(p_number<100){
-                    k=2;
-                }else if(p_number<1000){
-                    k=3;
-                }else if(p_number<10000){
-                    k=4;
-                }else if(p_number<100000){
-                    k=5;
-                }
-
-                switch(k){
-                    case 1:
-                        seqbuff[5]=seqbuff[0];
-                        for(j=0;j<5;j++) seqbuff[j]='0';
-                        break;
-                    case 2:
-                        seqbuff[5]=seqbuff[1];
-                        seqbuff[4]=seqbuff[0];
-                        for(j=0;j<4;j++) seqbuff[j]='0';
-                        break;
-                    case 3:
-                        seqbuff[5]=seqbuff[2];
-                        seqbuff[4]=seqbuff[1];
-                        seqbuff[3]=seqbuff[0];
-                        for(j=0;j<3;j++) seqbuff[j]='0';
-                        break;
-                    case 4:
-                        seqbuff[5]=seqbuff[3];
-                        seqbuff[4]=seqbuff[2];
-                        seqbuff[3]=seqbuff[1];
-                        seqbuff[2]=seqbuff[0];
-                        for(j=0;j<2;j++) seqbuff[j]='0';
-                        break;
-                    case 5:
-                        seqbuff[5]=seqbuff[4];
-                        seqbuff[4]=seqbuff[3];
-                        seqbuff[3]=seqbuff[2];
-                        seqbuff[2]=seqbuff[1];
-                        seqbuff[1]=seqbuff[0];
-                        seqbuff[0]='0';
-                        break;
-                }
-                printf("seqbuff: ");
-                for(k=0;k<6;k++) printf("%c",seqbuff[k]);
-                printf("\n");
-        /*****************************
-         * merge data and seq into imagebuff
-         * *************************/
-                for(j=0;j<6;j++){
-                    imagebuff[j]=seqbuff[j];
-                }
-                for(j=0;j<500;j++){
-                    imagebuff[j+6]=databuff[j];
-                }
-        /******************************
-         * send stuff
-         * **************************/
-                if((snd=sendto(dataSocket,imagebuff,sentsize,0,(struct sockaddr *)&dataClient_addr,clientSize))==-1) {
-                    printf("send error\n");
-                    exit(-1);
-                }
-                p_number++;
-            }
-            p_number_transmited=p_number;
-            for (p_number=i;p_number<=p_number_transmited-1;p_number++){///fast retransmit, receive the exact same amount that was transmited
-                /******************************
-                 * rcv stuff
-                 * **************************/
-                rcv=recvfrom(controlSocket,ackbuff,9,0,(struct sockaddr *)&controlClient_addr,&clientSize);
-                printf("message received: %s \n",ackbuff);
-            }
-            i=p_number;
-            /** change window size according to specified rules**/
-            window=window*2;
-            }
+		while(i<=steps){				
+			if (i == steps) {
+				im=fread(databuff,remaining,1,image);
+				sentsize= remaining+6;
+				
+			} else {
+				im=fread(databuff,500,1,image);
+				sentsize= 506;
+			}
+	/*******************************
+	 * sequence buffer generation
+	 * ****************************/
+			//generate seqbuff
+			sprintf(seqbuff,"%d",i);
+			if(i<10){
+				k=1;
+			}else if(i<100){
+				k=2;
+			}else if(i<1000){
+				k=3;
+			}else if(i<10000){
+				k=4;
+			}else if(i<100000){
+				k=5;
+			}
+			
+			switch(k){
+				case 1: 
+					seqbuff[5]=seqbuff[0];
+					for(j=0;j<5;j++) seqbuff[j]='0';
+					break;
+				case 2: 	
+					seqbuff[5]=seqbuff[1];
+					seqbuff[4]=seqbuff[0];
+					for(j=0;j<4;j++) seqbuff[j]='0';
+					break;
+				case 3:
+					seqbuff[5]=seqbuff[2];
+					seqbuff[4]=seqbuff[1];
+					seqbuff[3]=seqbuff[0];
+					for(j=0;j<3;j++) seqbuff[j]='0';
+					break;
+				case 4:
+					seqbuff[5]=seqbuff[3];
+					seqbuff[4]=seqbuff[2];
+					seqbuff[3]=seqbuff[1];
+					seqbuff[2]=seqbuff[0];
+					for(j=0;j<2;j++) seqbuff[j]='0';
+					break;
+				case 5:
+					seqbuff[5]=seqbuff[4];
+					seqbuff[4]=seqbuff[3];
+					seqbuff[3]=seqbuff[2];
+					seqbuff[2]=seqbuff[1];
+					seqbuff[1]=seqbuff[0];
+					seqbuff[0]='0';
+					break;
+			}
+			printf("seqbuff: ");
+			for(k=0;k<6;k++) printf("%c",seqbuff[k]);
+			printf("\n");
+	/*****************************
+	 * merge data and seq into imagebuff
+	 * *************************/
+			for(j=0;j<6;j++){
+				imagebuff[j]=seqbuff[j];
+			}
+			for(j=0;j<500;j++){
+				imagebuff[j+6]=databuff[j];
+			}
+	/******************************
+	 * send stuff
+	 * **************************/
+			if((snd=sendto(dataSocket,imagebuff,sentsize,0,(struct sockaddr *)&dataClient_addr,clientSize))==-1) {
+				printf("send error\n");
+				exit(-1);
+			}
+			/******************************
+			 * rcv stuff
+			 * **************************/		
+			rcv=recvfrom(controlSocket,ackbuff,9,0,(struct sockaddr *)&controlClient_addr,&clientSize);
+			printf("message received: %s \n",ackbuff);
+			i++;
+			
 		}
 	snd=sendto(dataSocket,"FIN",sizeof("FIN"),0,(struct sockaddr *)&dataClient_addr,clientSize);
-
+	
 return 0;
 }
 
