@@ -86,8 +86,10 @@ int main (int argc, char* argv[]){
 
 	int rcv,snd,i,namesize=55;
     /********************************
-    SDP part
+    RTSP negociation
     ********************************/
+
+
 /*
         printf("reception start\n");
         rcv=recvfrom(controlSocket,buffer,sizeof(buffer),0,(struct sockaddr *)&controlClient_addr,&clientSize);
